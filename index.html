@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+    <title>Web Models</title>
+    <link rel="stylesheet" href="http://js.arcgis.com/3.13/esri/css/esri.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="main.css">
+    <script src="http://js.arcgis.com/3.13/"></script>
+    <script>
+        var map, toolbar, symbol, geomTask, xmin, xmax, ymin, ymax, bbox;
+
+        require([
+            "esri/map",
+            "esri/toolbars/draw",
+            "esri/graphic",
+
+            "esri/symbols/SimpleMarkerSymbol",
+            "esri/symbols/SimpleLineSymbol",
+            "esri/symbols/SimpleFillSymbol",
+
+            "dojo/parser", "dijit/registry",
+
+            "dijit/layout/BorderContainer", "dijit/layout/ContentPane",
+            "dijit/form/Button", "dijit/WidgetSet", "dojo/on", "dojo/domReady!"
+        ], function(
+                Map, Draw, Graphic,
+                SimpleMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol,
+                on, parser, registry
+                ) {
+            dojo.parser.parse();
+
+            map = new Map("map", {
+                basemap: "streets",
+                center: [-15.469, 36.428],
+                zoom: 3
+            });
+
+            map.on("load", createToolbar);
+
+            /* rkm 06may15 - For use with custom basemap layers
+             var imageParm = new esri.layers.ImageParameters();
+             imageParm.format = "png24";
+             var url = "https://map-server.com/acrgis/rest/services/map-service";
+             var layer1 = new esri.layers.ArcGISDynamicMapServiceLayer(url, {
+             "opacity": 0.5,
+             "imageParameters": imageParm,
+             "spatialReference": 4326
+             });
+             map.addLayer(layer1);
+             */
+
+            $("#point").on("click", activateTool);
+            $("#circle").on("click", activateTool);
+
+            function activateTool() {
+                var tool = $(this).attr('id').toUpperCase();
+                console.log(tool);
+                toolbar.activate(Draw[tool]);
+                map.hideZoomSlider();
+            }
+
+            function createToolbar() {
+                toolbar = new Draw(map);
+                toolbar.on("draw-end", addToMap);
+            }
+
+            function addToMap(evt) {
+                var symbol;
+                toolbar.deactivate();
+                map.showZoomSlider();
+                switch (evt.geometry.type) {
+                    case "point":
+                        geoType = "point";
+                        lat = evt.geometry.x;
+                        lon = evt.geometry.y;
+                    case "multipoint":
+                        symbol = new SimpleMarkerSymbol();
+                        break;
+                    case "polyline":
+                        symbol = new SimpleLineSymbol();
+                        break;
+                    default:
+                        symbol = new SimpleFillSymbol();
+                        geoType = "circle";
+                        xmin = evt.geometry.getExtent().xmin;
+                        xmax = evt.geometry.getExtent().xmax;
+                        ymin = evt.geometry.getExtent().ymin;
+                        ymax = evt.geometry.getExtent().ymax;
+                        break;
+                }
+                var graphic = new Graphic(evt.geometry, symbol);
+                map.graphics.clear();
+                map.graphics.add(graphic);
+            }
+        });
+    </script>
+    <script type="text/javascript" src="model.js"></script>
+</head>
+<body>
+    <div id="mainWindow">
+        <div class="panel panel-primary panel-fixed">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <a data-toggle="collapse" data-target="#collapseOne" href="#collapseOne">
+                        Web Models Interactive API
+                    </a>
+                </h3>
+            </div>
+            <div id="collapseOne" class="panel-body collapse in">
+                <div class="col-md-12">
+                    <div class="row">
+                        <form class="form-inline">
+                            <div class="form-group">
+                                <label for="model-selector">Choose a model: </label>
+                                <select class="form-control" id="model-selector">
+                                    <option value="11111">Model 1 - Bounding Box</option>
+                                    <option value="22222">Model 2 - Bounding Box</option>
+                                    <option value="33333">Model 3 - Bounding Box</option>
+                                    <option value="44444">Model 4 - Point Radius</option>
+                                    <option value="55555">Model 5 - Point Radius</option>
+                                    <option value="66666">Model 6 - Point Radius</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div id="section-input-model">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="time-range" class="col-sm-6 control-label">Select date range: </label>
+                            <div class="col-sm-5">
+                                <select class="form-control" id="time-range">
+                                    <option value="1">1 day</option>
+                                    <option value="2">2 days</option>
+                                    <option value="3">3 days</option>
+                                    <option value="4">4 days</option>
+                                    <option value="5">5 days</option>
+                                    <option value="6">6 days</option>
+                                    <option value="7">7 days</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="cloud-cover" class="col-sm-6 control-label">Cloud cover <= </label>
+                            <div class="col-sm-5">
+                                <select class="form-control" id="cloud-cover">
+                                    <option value="10">10 %</option>
+                                    <option value="20">20 %</option>
+                                    <option value="30">30 %</option>
+                                    <option value="40">40 %</option>
+                                    <option value="50">50 %</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="predicted-niirs" class="col-sm-7 control-label">Predicted NIIRS >= </label>
+                            <div class="col-sm-4">
+                                <select class="form-control" id="predicted-niirs">
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="15">15</option>
+                                    <option value="20">20</option>
+                                    <option value="25">25</option>
+                                    <option value="30">30</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div>
+                                <div class="checkbox-inline">
+                                    <label>
+                                        <input type="checkbox" id="checkbox-social" value="option1"> Source 1
+                                    </label>
+                                </div>
+                                <div class="checkbox-inline">
+                                    <label>
+                                        <input type="checkbox" id="checkbox-ir" value="option2"> Source 2
+                                    </label>
+                                </div>
+                                <div class="checkbox-inline">
+                                    <label>
+                                        <input type="checkbox" id="checkbox-comext" value="option3"> Source 3
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="checkbox-inline">
+                                    <label>
+                                        <input type="checkbox" id="checkbox-imagery" value="option4"> Source 4
+                                    </label>
+                                </div>
+                                <div class="checkbox-inline">
+                                    <label>
+                                        <input type="checkbox" id="checkbox-midb" value="option5"> Source 5
+                                    </label>
+                                </div>
+                                <div class="checkbox-inline">
+                                    <label>
+                                        <input type="checkbox" id="checkbox-bvi" value="option6"> Source 6
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <button class="btn btn-default" type="button" id="point">Draw Point&nbsp;&nbsp;<span class="glyphicon glyphicon-map-marker"></span></button>
+                                <button class="btn btn-default" type="button" id="circle">Draw AOI&nbsp;&nbsp;<span class="glyphicon glyphicon-map-marker"></span></button>
+                                <button class="btn btn-default" type="button" onclick="runModel1();">Run Model&nbsp;&nbsp;<span class="glyphicon glyphicon-play"></span></button>
+                                <button class="btn btn-default" type="button" title="Help">Help&nbsp;&nbsp;<span class="glyphicon glyphicon-question-sign"></span></button>
+                            </div>
+                        </div>
+                        <div class="form-group" id="radius-div">
+                            <label for="radius" class="col-sm-7 control-label">Search radius </label>
+                            <div class="col-sm-4">
+                                <select class="form-control" id="radius">
+                                    <option value="10">10 kilometers</option>
+                                    <option value="20">20 kilometers</option>
+                                    <option value="30">30 kilometers</option>
+                                    <option value="40">40 kilometers</option>
+                                    <option value="50">50 kilometers</option>
+                                    <option value="60">60 kilometers</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div id="results-panel" class="panel">
+                <div id="results" class="panel-heading"></div>
+                <div class="panel-body">
+                    <div id="progress" class="list-group text-center"></div>
+                </div>
+            </div>
+        </div>
+        <div id="map"></div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $("div#results-panel").hide();
+            $("div#results").hide();
+            $("div#radius-div").hide();
+            $("button#point").hide();
+            //getResourceId();
+            $('#model-selector').change(function(){
+                var aoiModels = ['11111','22222','33333'];
+                var pointModels = ['44444','55555','66666'];
+                if ($.inArray($('#model-selector').val(), aoiModels) != -1) {
+                    $('button#circle').show();
+                    $('button#point').hide();
+                    $("div#radius-div").hide();
+                } else {
+                    $('button#circle').hide();
+                    $('button#point').show();
+                    $("div#radius-div").show();
+                };
+            });
+        });
+    </script>
+</body>
+</html>
