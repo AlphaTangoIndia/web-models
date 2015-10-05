@@ -59,7 +59,7 @@ function runModel1(){
     $("#results").html("<p>Executing model, please wait...</p>");
 
     //rkm - begin testing
-    url = "http://localhost:63342/maps/web-models/lnigets/test-data.json";
+    url = "http://localhost:63343/web-models/lnigets/test-data.json";
 
     // Make the ajax call to execute the model
     $.ajax({
