@@ -1,0 +1,16 @@
+{
+  "docs": [
+    {
+      "title": "Result 1",
+      "url": "http://localhost:63343/web-models/cctk/kml/Result1.kml"
+    },
+    {
+      "title": "Result 2",
+      "url": "http://localhost:63343/web-models/cctk/kml/Result2.kml"
+    },
+    {
+      "title": "Result 3",
+      "url": "http://localhost:63343/web-models/cctk/kml/Result3.kml"
+    }
+  ]
+}

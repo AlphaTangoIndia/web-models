@@ -85,7 +85,7 @@ function runModel1(){
     $("#results").html("<p>Submitting, please wait...</p>");
 
     //rkm - begin testing
-    console.log(url);
+    /*
     setTimeout(function() {
         var newHTML =
             '<a class="list-group-item" target="_blank" href="http://www.google.com">Result-1.kml</a>' +
@@ -95,30 +95,38 @@ function runModel1(){
         $("#results").html("<p>Download Result(s)</p>");
         $("#results-panel").addClass("panel-success");
     }, 5000);
+    */
+
+    //rkm - begin testing
+    url = "test-data.html";
 
     // Make the ajax call to execute the model
-    /*
     $.ajax({
         url: url,
+        dataType: "html",
         success: function(result){
-            var returnedHTML = $('<div/>').html(result).contents();
+            var returnedHTML = $('<div>');
+            returnedHTML.html(result);
             var newHTML = "";
-            returnedHTML.find("a").each(function( index ){
-                newHTML = newHTML + '<a class="btn btn-info btn-xs spaced" href="' + $(this).attr('href') + '" target="_blank">' + $(this).text() + '</a><br />';
+            $(returnedHTML).find("a").each(function( index ){
+                console.log('found one!');
+                newHTML = newHTML + '<a style="margin-bottom:5px;" class="btn btn-link spaced" href="' + $(this).attr('href') + '" target="_blank">' + $(this).text() + '</a><br />';
             });
+            console.log('newHTML: ' + newHTML);
             $("#progress").html(newHTML);
             $("#results").html("<p>Download Result(s)</p>");
             $("#results-panel").addClass("panel-success");
         },
-        error: function(){
-            $("#results-panel").addClass("panel-danger"):
-            $("#results").html("<p>Download Failure</p>"):
-            $("#progress").html('<strong>Response Status:  </strong> ' + textStatus + '<br /> <strong>Error Type: </strong> ' + errorThrown):
-        },
-        xhrFields: {
-            withCredentials: true
+        error: function(xhr, status, error){
+            $("#results-panel").addClass("panel-danger");
+            $("#results").html("<p>Download Failure</p>");
+            $("#progress").html('<strong>Error:  </strong> ' + xhr.responseText);
         }
+        /*,
+         xhrFields: {
+         withCredentials: true
+         }
+         */
     });
-    */
 
 }
