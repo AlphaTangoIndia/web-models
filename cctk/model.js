@@ -88,15 +88,13 @@ function runModel1(){
     console.log(url);
     setTimeout(function() {
         var newHTML =
-            '<a class="list-group-item" target="_blank" href="http://www.google.com" data-toggle="modal" data-target="#report">Result-1.kml</a>' +
-            '<a class="list-group-item" target="_blank" href="http://sports.yahoo.com" data-toggle="modal" data-target="#report">Result-2.kml</a>' +
-            '<a class="list-group-item" target="_blank" href="http://news.google.com" data-toggle="modal" data-target="#report">Result-3.kml</a>';
+            '<a class="list-group-item" target="_blank" href="http://www.google.com">Result-1.kml</a>' +
+            '<a class="list-group-item" target="_blank" href="http://sports.yahoo.com">Result-2.kml</a>' +
+            '<a class="list-group-item" target="_blank" href="http://news.google.com">Result-3.kml</a>';
         $("#progress").html(newHTML);
         $("#results").html("<p>Download Result(s)</p>");
         $("#results-panel").addClass("panel-success");
     }, 5000);
-
-    //window.location.href = url;
 
     // Make the ajax call to execute the model
     /*
@@ -123,8 +121,4 @@ function runModel1(){
     });
     */
 
-}
-
-function showDoc (name, url) {
-    console.log(name + " : " + url);
 }
